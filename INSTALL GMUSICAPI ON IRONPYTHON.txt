@@ -1,0 +1,120 @@
+INSTALL GMUSICAPI ON IRONPYTHON
+-------------------------------------------------------------------
+- download ironpython 2.7.5 binarys: https://ironpython.codeplex.com/downloads/get/970326
+- install pip: ipy -X:Frames -m ensurepip
+- fix pip:
+    in <pythondir>\lib\site-packages\pip\_vendor\requests\packages\urllib3\packages\ssl_match_hostname\_implementation.py
+    in match_hostname
+    replace implementation with "return"
+
+- install protobuf manually:
+  - download https://github.com/GoogleCloudPlatform/gcloud-python-wheels/raw/master/wheelhouse/protobuf-3.0.0a1-py2-none-any.whl
+  - ipy -X:Frames -m pip install protobuf-3.0.0a1-py2-none-any.whl
+
+- install pyasn1 manually
+  - download https://pypi.python.org/packages/source/p/pyasn1/pyasn1-0.1.8.tar.gz#md5=7f6526f968986a789b1e5e372f0b7065
+  - extract
+  - ipy -X:Frames dist/pyasn1-0.1.8/setup.py install
+  
+- install pyasn1-modules manually
+  - download https://pypi.python.org/packages/source/p/pyasn1-modules/pyasn1-modules-0.0.6.tar.gz#md5=3b94e7a4999bc7477b76c46c30a56727
+  - extract
+  - ipy -X:Frames dist/pyasn1-modules-0.0.6/setup.py install
+
+- install pycrypto
+  - ipy -X:Frames -m easy_install http://www.voidspace.org.uk/downloads/pycrypto26/pycrypto-2.6.win32-py2.7.exe
+  - copy folder <pythondir>\Lib\site-packages\pycrypto-2.6-py2.7-cli.egg\Crypto
+    to <pythondir>\Lib\site-packages\Crypto
+  - download IronPyCrypto: https://bitbucket.org/djlawler/ironpycrypto/get/9ef44f70dd5e.zip
+  - open solution (maybe you need to install https://pytools.codeplex.com/)
+  - fix missing references to Ironpython,... (take the .dll's from <irondir>)
+  - replace in entire solution:
+    - "IAttributesCollection" with "System.Collections.IDictionary"
+    - "foreach (SymbolId karg in kwargs.SymbolAttributes.Keys)" with foreach (var karg in kwargs.Keys)
+  - build
+  - copy <solutiondir>\Crypto over <pythondir>\Lib\site-packages\Crypto
+  - copy <solutiondir>\IronPyCrypto\bin\Debug\IronPyCrypto.dll into <pythondir>
+  - remove folder <pythondir>\Lib\site-packages\pycrypto-2.6-py2.7-cli.egg
+  - replace all occurences of "from Crypto.Util.strxor import strxor" with:
+      if sys.platform == "cli":
+        import clr
+        clr.AddReference("IronPyCrypto.dll")
+        import IronPyCrypto_Util_strxor as strxorClass
+        strxor = strxorClass.strxor 
+  
+- install http
+  - ipy -X:Frames -m pip install http
+
+- install gmusicapi
+  - ipy -X:Frames -m pip install gmusicapi
+
+- replace in <pythondir>\Lib\site-packages\httplib2\__init__.py:
+    if sys.version_info >= (2,3):
+        from iri2uri import iri2uri
+    else:
+        def iri2uri(uri):
+            return uri
+    
+    with 
+    
+    #if sys.version_info >= (2,3
+        #from iri2uri import iri2uri
+    #else:
+    def iri2uri(uri):
+        return uri
+        
+- replace in <pythondir>\lib\site-packages\six.py:
+    
+    def _import_module(name):
+        """Import module, returning the module after the last dot."""
+        __import__(name)
+        return sys.modules[name]
+      
+    with:
+    
+    def _import_module(name):
+        """Import module, returning the module after the last dot."""
+        if name == 'six.moves.urllib':
+          name = 'urllib'
+        else:
+          __import__(name)
+        return sys.modules[name]
+        
+- add in <pythondir>lib\site-packages\Crypto\Cipher\PKCS1_OAEP.py
+    - import Crypto.Random as Random
+    - in class PKCS1OAEP_Cipher
+      in def __init__(self, key, hashAlgo, mgfunc, label):
+    
+        if not hasattr(self._key,'_randfunc'):
+            self._key._randfunc = Random.new().read 
+    
+        
+- replace in <pythondir>\Lib\site-packages\requests\packages\urllib3\connectionpool.py in _make_request:
+    
+    try:
+        self._validate_conn(conn)
+    except (SocketTimeout, BaseSSLError) as e:
+        # Py2 raises this as a BaseSSLError, Py3 raises it as socket timeout.
+        self._raise_timeout(err=e, url=url, timeout_value=conn.timeout)
+        raise
+        
+    with:
+    
+    try:
+        self._validate_conn(conn)
+    except (SocketTimeout, BaseSSLError) as e:
+        # Py2 raises this as a BaseSSLError, Py3 raises it as socket timeout.
+        pass
+        
+- if not existing, create an empty  __init__.py in <pythondir>\Lib\site-packages\google
+
+- in <pythondir>\Lib\site-packages\gmusicapi\protocol\shared.py:
+  - remove all references to "log"
+
+- fix urllib:
+    in <pythondir>\lib\site-packages\requests\packages\urllib3\packages\ssl_match_hostname\_implementation.py
+    in match_hostname
+    replace implementation with "return"      
+    
+  
+
