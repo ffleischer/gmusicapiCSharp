@@ -30,7 +30,7 @@ INSTALL GMUSICAPI ON IRONPYTHON
   - fix missing references to Ironpython,... (take the .dll's from <irondir>)
   - replace in entire solution:
     - "IAttributesCollection" with "System.Collections.IDictionary"
-    - "foreach (SymbolId karg in kwargs.SymbolAttributes.Keys)" with foreach (var karg in kwargs.Keys)
+    - "foreach (SymbolId karg in kwargs.SymbolAttributes.Keys)" with "foreach (var karg in kwargs.Keys)"
   - build
   - copy <solutiondir>\Crypto over <pythondir>\Lib\site-packages\Crypto
   - copy <solutiondir>\IronPyCrypto\bin\Debug\IronPyCrypto.dll into <pythondir>
