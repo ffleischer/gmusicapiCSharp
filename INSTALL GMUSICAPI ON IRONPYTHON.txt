@@ -83,8 +83,12 @@ INSTALL GMUSICAPI ON IRONPYTHON
 - add in <pythondir>lib\site-packages\Crypto\Cipher\PKCS1_OAEP.py
     - import Crypto.Random as Random
     - in class PKCS1OAEP_Cipher
-      in def __init__(self, key, hashAlgo, mgfunc, label):
+      in def __init__(self, key, hashAlgo, mgfunc, label)
+	  after 
+		self._key = key
     
+	  add:
+
         if not hasattr(self._key,'_randfunc'):
             self._key._randfunc = Random.new().read 
     
