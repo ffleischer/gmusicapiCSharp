@@ -19,6 +19,7 @@ With some luck it works but it will probably break some stuff.
   - less hacking, maybe some kind of sript or patch files
   - try to compile the IronPython Module into a dll
 - cast C# Types to Python Types
+- error handling
 - implement missing clients, types and functions
 - test
 - documentation
