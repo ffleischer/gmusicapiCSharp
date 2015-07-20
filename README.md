@@ -13,6 +13,7 @@ Please refer to the [install instructions](https://github.com/ffleischer/gmusica
 
 This whole process is a first draft and need's some work. 
 With some luck it works but it will probably break some stuff.
+A preconfigured IronPython package is available [here](https://mega.nz/#!2R5BBSIS!SfdNpcflEWb8pX7I1eWM7VD5p3JlmmhgIi_NxQ07xmg)
 
 ### ToDo
 - rework setup process
