@@ -10,8 +10,9 @@ The Demo should work so far but there are currently no other tests.
 ### Setup
 All needed files should be included in the project
 
-- IronPython binarys in [LibsIronPython](https://github.com/ffleischer/gmusicapiCSharp/tree/master/LibsIronPython)
+- IronPython (from nuget)
 - the zipped Python librarys as a [Resource of Gmusicapi](https://github.com/ffleischer/gmusicapiCSharp/tree/master/Gmusicapi/Resources)
+- IronPyCrypto binary in [Libs](https://github.com/ffleischer/gmusicapiCSharp/tree/master/Libs)
  
 So you hopefully won't need to install IronPython 
 
