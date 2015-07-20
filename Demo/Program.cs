@@ -11,13 +11,12 @@ namespace Demo
     {
         static void Main(string[] args)
         {
-            const string ironDir = @"dir\of\ironpython";
-
             const string email = "user@gmail.com";
             const string password = "password";
             const string android_id = "ffffffffffffffff";
 
-            var api = new Mobileclient(ironDir);
+            //the verify_ssl option currently causes a SSL Exception
+            var api = new Mobileclient(false,true,false);
             api.login(email, password, android_id);
 
             var devices = api.get_registered_devices();

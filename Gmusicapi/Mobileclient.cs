@@ -14,7 +14,7 @@ namespace Gmusicapi
         private static ScriptEngine pyEngine = null;
         private dynamic pyMobileclient;
 
-        public Mobileclient(string ironDir)
+        public Mobileclient(bool debug_logging=true, bool validate=true, bool verify_ssl=true)
         {
             if (pyEngine == null)
             {
@@ -25,17 +25,18 @@ namespace Gmusicapi
             }
 
             ScriptScope pyScope = pyEngine.CreateScope();
-            string[] searchPaths = new String[4];
-            // not cross platform
-            searchPaths[0] = ironDir;
-            searchPaths[1] = ironDir + "\\DLLs";
-            searchPaths[2] = ironDir + "\\Lib";
-            searchPaths[3] = ironDir + "\\Lib\\site-packages";
-            pyEngine.SetSearchPaths(searchPaths);
+            
+            pyEngine.Execute("import sys", pyScope);
+            //needed for the IronPyCrypto.dll
+            pyEngine.Execute("sys.path.insert(0, '" + AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "')", pyScope);
+            //import Lib from zip file
+            pyEngine.Execute("sys.path.insert(1, '" + AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "Resources/Lib.zip')", pyScope);
+            pyEngine.Execute("sys.path.insert(2, '" + AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "Resources/Lib.zip/site-packages')", pyScope);
 
             pyEngine.Execute("from gmusicapi import Mobileclient", pyScope);
             dynamic typeMobileclient = pyScope.GetVariable("Mobileclient");
-            pyMobileclient = typeMobileclient(false);
+
+            pyMobileclient = typeMobileclient(debug_logging, validate, verify_ssl);
         }
 
         public bool login(string email, string password, string android_id)
