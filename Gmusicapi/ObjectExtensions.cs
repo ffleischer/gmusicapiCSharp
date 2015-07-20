@@ -44,22 +44,32 @@ namespace Gmusicapi
                 try
                 {
                     var newValue = item.Value;
+                    PropertyInfo prop = null;
+                    
+                    //try to get the property from the sub class
+                    prop = someObjectType.GetProperty((String)item.Key,BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                    if(prop == null)
+                    {
+                        //serch in the base classes
+                        prop = someObjectType.GetProperty((String)item.Key);
+                    }
+                    
                     if (newValue.GetType() == typeof(IronPython.Runtime.List))
                     {
 
                         MethodInfo method = typeof(ObjectExtensions).GetMethod("ToList");
-                        MethodInfo generic = method.MakeGenericMethod(someObjectType.GetProperty((String)item.Key).PropertyType.GenericTypeArguments[0]);
+                        MethodInfo generic = method.MakeGenericMethod(prop.PropertyType.GenericTypeArguments[0]);
                         newValue = generic.Invoke(null, new object[] { (IronPython.Runtime.List)newValue });
                     }
 
                     else if (newValue.GetType() == typeof(IronPython.Runtime.PythonDictionary))
                     {
                         MethodInfo method = typeof(ObjectExtensions).GetMethod("ToObject");
-                        MethodInfo generic = method.MakeGenericMethod(someObjectType.GetProperty((String)item.Key).PropertyType);
+                        MethodInfo generic = method.MakeGenericMethod(prop.PropertyType);
                         newValue = generic.Invoke(null, new object[] { (IronPython.Runtime.PythonDictionary)newValue });
                     }
 
-                    someObjectType.GetProperty((string)item.Key).SetValue(someObject, newValue, null);
+                    prop.SetValue(someObject, newValue, null);
 
                 }
                 catch (Exception ex)

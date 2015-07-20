@@ -246,10 +246,15 @@ namespace Gmusicapi
 
     public class GoogleMusicUserPlaylistsContents : GoogleMusicPlaylistsContents
     {
-        //{[clientId, d719ed8e....]}
-        public string clientId { get; set; }
-        //'playlistId': '3d72c9b5-baad-4ff7-815d-cdef717e5d61',
-        public string playlistId { get; set; }
+        public new class Track : GoogleMusicPlaylistsContents.Track
+        {
+            //{[clientId, d719ed8e....]}
+            public string clientId { get; set; }
+            //'playlistId': '3d72c9b5-baad-4ff7-815d-cdef717e5d61',
+            public string playlistId { get; set; }
+        }
+
+        public new List<Track> tracks { get; set; }
     }
 
     public class RegisteredDevice
