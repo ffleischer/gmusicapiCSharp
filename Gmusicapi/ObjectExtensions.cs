@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -124,14 +125,56 @@ namespace Gmusicapi
 			return someList;
 		}
 
-		public static IDictionary<string, object> AsDictionary(this object source, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+		public static IronPython.Runtime.List AsPyList(this List<object> source)
 		{
-			return source.GetType().GetProperties(bindingAttr).ToDictionary
-			(
-				propInfo => propInfo.Name,
-				propInfo => propInfo.GetValue(source, null)
-			);
+			var pyList = new IronPython.Runtime.List();
 
+			Type someObjectType = source.GetType();
+
+			foreach (var item in source)
+			{
+				object newValue = null;
+				try
+				{
+					if (item is IList && item.GetType().IsGenericType)
+					{
+						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyList");
+						MethodInfo generic = method.MakeGenericMethod(someObjectType.GenericTypeArguments[0]);
+						newValue = generic.Invoke(null, new object[] {item});
+					}
+					else if (item.GetType().Namespace == typeof(ObjectExtensions).Namespace)
+					{
+						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyDictionary");
+						MethodInfo generic = method.MakeGenericMethod(someObjectType);
+						newValue = generic.Invoke(null, new object[] { (IronPython.Runtime.PythonDictionary)item });
+					}
+					else
+					{
+						newValue = item;
+					}
+
+					pyList.Add(newValue);
+
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("Unable to add:" + newValue.ToString());
+					Console.WriteLine(ex.Message);
+				}
+			}
+			return pyList;
+		}
+
+		public static IronPython.Runtime.PythonDictionary AsPyDictionary(this object source)//, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+		{
+			var pyDic = new IronPython.Runtime.PythonDictionary();
+			foreach (var item in source.GetType().GetProperties())
+			{
+				pyDic.Add(item.Name, item.GetValue(source, null));
+			}
+
+
+			return pyDic;
 		}
 	}
 }

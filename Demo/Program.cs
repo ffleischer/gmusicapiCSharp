@@ -31,6 +31,13 @@ namespace Demo
 			var share_tok = subscribed_to[0].shareToken;
 			var shared_tracks = api.get_shared_playlist_contents(share_tok);
 
+			var search = api.search_all_access("Marteria");
+
+			var genres = api.get_genres();
+			var sub_genres = api.get_genres("POP");
+			var allStations = api.get_all_stations();
+			var updatedStations = api.get_all_stations(false, false, DateTime.Now.AddMonths(-6));
+
 			api.logout();
 		}
 	}
