@@ -47,9 +47,10 @@ namespace Gmusicapi
 					else:
 						return datetime.datetime(CSDateTime)";
 			pyEngine.Execute(pyConvDateTimeSrc, pyScope);
+			pyConvDateTime = pyScope.GetVariable("ConvToPyDateTime");
 
 			dynamic typeMobileclient = pyScope.GetVariable("Mobileclient");
-			pyConvDateTime = pyScope.GetVariable("ConvToPyDateTime");
+			
 
 			pyMobileclient = typeMobileclient(debug_logging, validate, verify_ssl);
 		}
@@ -86,7 +87,8 @@ namespace Gmusicapi
 		{
 			throw new NotImplementedException();
 			//TODO convert to python List/Dictionary
-			return pyMobileclient.change_song_metadata(songs);
+			var pySongs = songs.AsPyList();
+			return pyMobileclient.change_song_metadata(pySongs);
 		}
 
 		public string delete_songs(List<string> library_song_ids)
@@ -140,25 +142,26 @@ namespace Gmusicapi
 
 		public List<string> add_songs_to_playlist(string playlist_id, List<string> song_ids)
 		{
-			throw new NotImplementedException();
-			//TODO convert to python List
-			IronPython.Runtime.List tmp = pyMobileclient.add_songs_to_playlist(playlist_id, song_ids);
+			var pySongs_IDs = song_ids.AsPyList();
+			IronPython.Runtime.List tmp = pyMobileclient.add_songs_to_playlist(playlist_id, pySongs_IDs);
 			return tmp.ToList<string>();
 
 		}
 
 		public string reorder_playlist_entry(PlaylistsContents.Track entry, PlaylistsContents.Track to_follow_entry = null, PlaylistsContents.Track to_precede_entry = null)
 		{
-			throw new NotImplementedException();
-			//TODO convert to python dict
-			return pyMobileclient.reorder_playlist_entry(entry, to_follow_entry, to_precede_entry);
+			var pyEntry = entry.AsPyDictionary();
+			var pyToFollow = to_follow_entry.AsPyDictionary();
+			var pyToPrecede = to_precede_entry.AsPyDictionary();
+			return pyMobileclient.reorder_playlist_entry(pyEntry, pyToFollow, pyToPrecede);
 		}
 
 		public List<string> remove_entries_from_playlist(List<string> entry_ids)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 			//TODO convert to python List
-			IronPython.Runtime.List tmp = pyMobileclient.remove_entries_from_playlist(entry_ids);
+			var pyEntry_IDs = entry_ids.AsPyList();
+			IronPython.Runtime.List tmp = pyMobileclient.remove_entries_from_playlist(pyEntry_IDs);
 			return tmp.ToList<string>();
 		}
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -35,6 +36,7 @@ namespace Gmusicapi
 		public string license_title { get; set; }
 	}
 
+	[DebuggerDisplay("{title} - {artist}")]
 	public class Track
 	{
 		public class PrimaryVideo
@@ -145,6 +147,7 @@ namespace Gmusicapi
 		// }
 	}
 
+	[DebuggerDisplay("{name}")]
 	public class Playlist
 	{
 		public string description { get; set; }
@@ -174,7 +177,7 @@ namespace Gmusicapi
 		public string id { get; set; }
 	}
 
-	//  {
+	[DebuggerDisplay("{name} - {artist}")]
 	public class Album
 	{
 		//    'albumArtRef':'http://lh6.ggpht.com/...',
@@ -198,7 +201,7 @@ namespace Gmusicapi
 		//  },
 	}
 		//],
-
+	[DebuggerDisplay("{name}")]
 	public class ArtistInfo
 	{
 		//  'albums':[  # only if include_albums is True
@@ -255,8 +258,10 @@ namespace Gmusicapi
 			public string creationTimestamp { get; set; }
 			//'id': 'c9f1aff5'
 			public string id { get; set; }
+			public string nid { get; set; }
+			public string trackType { get; set; }
 
-			public Track track { get; set; }
+			public Gmusicapi.Track track { get; set; }
 		}
 
 		public List<Track> tracks { get; set; }
@@ -279,6 +284,7 @@ namespace Gmusicapi
 		public new List<Track> tracks { get; set; }
 	}
 
+	[DebuggerDisplay("{friendlyName}")]
 	public class RegisteredDevice
 	{
 		//u'kind':               u'sj#devicemanagementinfo',
@@ -295,6 +301,7 @@ namespace Gmusicapi
 		public bool smartPhone { get; set; }
 	}
 
+	[DebuggerDisplay("{name}")]
 	public class RadioStation
 	{
 		//'imageUrl': 'http://lh6.ggpht.com/...',
@@ -444,7 +451,7 @@ namespace Gmusicapi
 			public class Playlist
 			{
 				//	'albumArtRef':[
-				public List<ArtistArtRef> albumArtRef { get; set; }
+				public List<Url> albumArtRef { get; set; }
 				//	   {
 				//		  'url':'http://lh4.ggpht.com/...'
 				//	   }
@@ -475,6 +482,7 @@ namespace Gmusicapi
 		public List<Track> tracks { get; set; }
 	}
 
+	[DebuggerDisplay("{name}")]
 	public class Genre
 	{
 		//'name': 'Alternative/Indie',

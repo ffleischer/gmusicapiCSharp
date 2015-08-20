@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Gmusicapi
 {
-	public static class ObjectExtensions
+	internal static class ObjectExtensions
 	{
 		private static class New<T>
 		{
@@ -125,7 +125,7 @@ namespace Gmusicapi
 			return someList;
 		}
 
-		public static IronPython.Runtime.List AsPyList(this List<object> source)
+		public static IronPython.Runtime.List AsPyList(this IList source)
 		{
 			var pyList = new IronPython.Runtime.List();
 
@@ -136,7 +136,7 @@ namespace Gmusicapi
 				object newValue = null;
 				try
 				{
-					if (item is IList && item.GetType().IsGenericType)
+					if ((item.GetType().GetInterfaces().Contains(typeof(System.Collections.IList))))
 					{
 						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyList");
 						MethodInfo generic = method.MakeGenericMethod(someObjectType.GenericTypeArguments[0]);
@@ -145,8 +145,7 @@ namespace Gmusicapi
 					else if (item.GetType().Namespace == typeof(ObjectExtensions).Namespace)
 					{
 						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyDictionary");
-						MethodInfo generic = method.MakeGenericMethod(someObjectType);
-						newValue = generic.Invoke(null, new object[] { (IronPython.Runtime.PythonDictionary)item });
+						newValue = method.Invoke(null, new object[] { item });
 					}
 					else
 					{
@@ -168,9 +167,56 @@ namespace Gmusicapi
 		public static IronPython.Runtime.PythonDictionary AsPyDictionary(this object source)//, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
 		{
 			var pyDic = new IronPython.Runtime.PythonDictionary();
+			Type someObjectType = source.GetType();
 			foreach (var item in source.GetType().GetProperties())
 			{
-				pyDic.Add(item.Name, item.GetValue(source, null));
+				object newValue = null;
+				try
+				{
+					if ((item.PropertyType.GetInterfaces().Contains(typeof(System.Collections.IList))))
+					{
+						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyList");
+						var value = item.GetValue(source, null);
+						if (value != null)
+						{
+							newValue = method.Invoke(null, new object[] { item.GetValue(source, null) });
+						}
+					}
+					else if (item.PropertyType.Namespace == typeof(ObjectExtensions).Namespace)
+					{
+						MethodInfo method = typeof(ObjectExtensions).GetMethod("AsPyDictionary");
+						var value = item.GetValue(source, null);
+						if (value != null)
+						{
+							newValue = method.Invoke(null, new object[] { item.GetValue(source, null) });
+						}
+					}
+					else
+					{
+						newValue = item.GetValue(source, null);
+					}
+
+					//pyDic.Add(item.Name, item.GetValue(source, null));
+					if(newValue != null)
+					{
+						//we encode strings as unicode
+						if(newValue.GetType() == typeof(string))
+						{
+							pyDic.Add(item.Name, Encoding.Unicode.GetString(Encoding.Unicode.GetBytes((string)newValue)));
+						}
+						else
+						{
+							pyDic.Add(item.Name, newValue);
+						}
+					}
+					
+
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("Unable to add:" + newValue.ToString());
+					Console.WriteLine(ex.Message);
+				}
 			}
 
 
